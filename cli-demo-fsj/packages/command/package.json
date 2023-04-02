@@ -1,0 +1,29 @@
+{
+  "name": "@fengshaojian/command",
+  "version": "0.0.0",
+  "description": "Command class",
+  "author": "fsj930210 <fsj930210@gmail.com>",
+  "homepage": "https://github.com/fsj930210/cli#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fsj930210/cli.git"
+  },
+  "scripts": {
+    "test": "node ./__tests__/command.test.js"
+  },
+  "bugs": {
+    "url": "https://github.com/fsj930210/cli/issues"
+  }
+}

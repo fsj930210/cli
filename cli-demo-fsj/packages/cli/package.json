@@ -1,0 +1,39 @@
+{
+  "name": "@fengshaojian/cli",
+  "version": "0.0.0",
+  "description": "cli demo",
+  "author": "fsj930210 <fsj930210@gmail.com>",
+  "homepage": "https://github.com/fsj930210/cli#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "bin": {
+    "cli-demo-fsj": "bin/cli.js"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib",
+    "bin"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fsj930210/cli.git"
+  },
+  "scripts": {
+    "test": "node ./__tests__/cli.test.js"
+  },
+  "bugs": {
+    "url": "https://github.com/fsj930210/cli/issues"
+  },
+  "dependencies": {
+    "@fengshaojian/init": "^0.0.0",
+    "commander": "^10.0.0",
+    "import-local": "^3.1.0",
+    "npmlog": "^7.0.1"
+  }
+}
