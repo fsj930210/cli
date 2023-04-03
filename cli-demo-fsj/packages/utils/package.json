@@ -1,10 +1,10 @@
 {
-  "name": "@fengshaojian/command",
+  "name": "@fengshaojian/utils",
   "version": "0.0.0",
-  "description": "Command class",
-  "author": "fsj930210 <fsj930210@gmail.com>",
+  "description": "cli-demo-fsj utils",
+  "author": "fengshaojian123 <fsj930210@163.com>",
   "homepage": "https://github.com/fsj930210/cli#readme",
-  "license": "ISC",
+  "license": "MIT",
   "main": "lib/index.js",
   "directories": {
     "lib": "lib",
@@ -13,18 +13,19 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "registry": "https://registry.yarnpkg.com/"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fsj930210/cli.git"
   },
   "scripts": {
-    "test": "node ./__tests__/command.test.js"
+    "test": "node ./__tests__/utils.test.js"
   },
   "bugs": {
     "url": "https://github.com/fsj930210/cli/issues"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "npmlog": "^7.0.1",
+    "semver": "^7.3.8"
+  }
 }

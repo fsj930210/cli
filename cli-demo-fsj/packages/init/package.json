@@ -26,7 +26,8 @@
   "bugs": {
     "url": "https://github.com/fsj930210/cli/issues"
   },
+  "type": "module",
   "dependencies": {
-    "@fengshaojian/command": "^0.0.0"
+    "@fengshaojian/command": "0.0.0"
   }
 }
