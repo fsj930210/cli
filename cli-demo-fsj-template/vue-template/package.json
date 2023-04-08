@@ -1,0 +1,11 @@
+{
+  "name": "@fengshaojian/vue-template",
+  "version": "0.0.1",
+  "description": "cli-demo-fsj vue3 template",
+  "main": "index.js",
+  "author": "fengshaojian123 <fsj930210@163.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}

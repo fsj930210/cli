@@ -25,6 +25,7 @@
   },
   "type": "module",
   "dependencies": {
+    "inquirer": "^9.1.5",
     "npmlog": "^7.0.1",
     "semver": "^7.3.8"
   }
