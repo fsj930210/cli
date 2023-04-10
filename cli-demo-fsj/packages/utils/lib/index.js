@@ -3,5 +3,7 @@
 import log from './log.js';
 import isDebugMode from './isDebugMode.js';
 import checkNodeVersion from './checkNodeVersion.js';
-
-export { log, checkNodeVersion, isDebugMode };
+import { makeInput, makeList } from './inquirer.js';
+import { getLatestVersion } from './npm.js';
+import printErrorLog from './printErrorLog.js';
+export { log, checkNodeVersion, isDebugMode, makeInput, makeList, getLatestVersion, printErrorLog };

@@ -1,12 +1,4 @@
-import { log, isDebugMode } from '@fengshaojian/utils';
-
-function printErrorLog(e, type) {
-	if (isDebugMode()) {
-		log.error(type, e);
-	} else {
-		log.error(type, e.message);
-	}
-}
+import { printErrorLog } from '@fengshaojian/utils';
 
 process.on('uncaughtException', (e) => printErrorLog(e, 'error'));
 

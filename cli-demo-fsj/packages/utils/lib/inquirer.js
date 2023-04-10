@@ -12,7 +12,8 @@ function make({
 	loop,
 }) {
 	const options = {
-		defaultValue,
+		name: 'name',
+		default: defaultValue,
 		message,
 		type,
 		require,
