@@ -1,23 +1,16 @@
 import path from 'node:path';
 import { homedir } from 'node:os';
-import { makeList, log, makeInput, getLatestVersion } from '@fengshaojian/utils';
+import { 
+	makeList, 
+	log, 
+	makeInput, 
+	getLatestVersion, 
+	printErrorLog,
+	request
+} from '@fengshaojian/utils';
 
 const TEMPLATE_PAGE_TYPE = 'page';
 const TEMPLATE_PROJECT_TYPE = 'project';
-const TEMPLATE_LIST = [
-	{
-		name: 'vue3项目模板',
-		version: '0.0.1',
-		value: 'vue-template',
-		npmName: '@fengshaojian/vue-template',
-	},
-	{
-		name: 'react18项目模板',
-		version: '0.0.1',
-		value: 'react-template',
-		npmName: '@fengshaojian/react-template',
-	},
-];
 
 const TEMPLATE_TYPE = [
 	{
@@ -53,17 +46,40 @@ function getName() {
 	});
 }
 
-function getTemplate() {
+function getTemplate(TEMPLATE_LIST) {
 	return makeList({
 		choices: TEMPLATE_LIST,
 		message: '请选择项目模板',
 	});
 }
 
+function getTeam(team) {
+	return makeList({
+		choices: team,
+		message: '请选择团队',
+	});
+}
+async function getTemplateList() {
+		try {
+			const data = await request({
+				// url: '/project/template',
+				url: '/v1/project',
+				method: 'GET'
+			})
+			log.verbose('templateList', data);
+			return data;
+		} catch (error) {
+			printErrorLog(error)
+		}
+}
 function makeTargetPath() {
 	return path.resolve(`${homedir()}/${TEMP_HOME}`, 'addTemplate');
 }
 export default async function createTemplate(name, opts) {
+	const TEMPLATE_LIST = await getTemplateList();
+	if (!TEMPLATE_LIST) {
+		throw new Error('项目模板不存在');
+	}
 	const { type = null, template = null } = opts;
 
 	let addType; // 创建项目类型
@@ -75,7 +91,7 @@ export default async function createTemplate(name, opts) {
 	} else {
 		addType = await getTemplateType();
 	}
-	log.verbose('选择的项目是', addType);
+	log.verbose('选择的类型是', addType);
 
 	if (addType === TEMPLATE_PROJECT_TYPE) {
 		if (name) {
@@ -84,13 +100,15 @@ export default async function createTemplate(name, opts) {
 			addName = await getName();
 		}
 		log.verbose('项目名称是', addName);
+		const teamList = [... new Set(TEMPLATE_LIST.map(i => i.team))];
+		const team = await getTeam(teamList);
 		if (template) {
 			selectedTemplate = TEMPLATE_LIST.find((tp) => tp.value === template);
 			if (!selectedTemplate) {
 				throw new Error(`项目模板 ${template} 不存在！`);
 			}
 		} else {
-			const tp = await getTemplate();
+			const tp = await getTemplate(TEMPLATE_LIST.filter(i => i.team === team));
 			selectedTemplate = TEMPLATE_LIST.find((_) => _.value === tp);
 		}
 		log.verbose('选择的项目模板是', selectedTemplate);
@@ -106,6 +124,6 @@ export default async function createTemplate(name, opts) {
 			targetPath,
 		};
 	} else {
-		throw new Error('占不支持该类型');
+		throw new Error('暂不支持该类型');
 	}
 }
