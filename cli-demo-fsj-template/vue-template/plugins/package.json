@@ -1,0 +1,13 @@
+{
+  "name": "vue-template-plugins",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "fengshaojian123 <fsj930210@163.com>",
+  "license": "MIT",
+  "type": "module"
+}

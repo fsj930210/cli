@@ -7,7 +7,8 @@ module.exports = app => {
     value: { type: String  },
     npmName: { type: String},
     version: { type: String },
-    team: {type: String }
+    team: {type: String },
+    ignore: { type: Array }
   });
 
   return mongoose.model('project', ProjectSchema);

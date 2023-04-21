@@ -1,5 +1,4 @@
 'use strict';
-
 import Command from '@fengshaojian/command';
 import { log } from '@fengshaojian/utils';
 import createTemplate from './createTemplate.js';

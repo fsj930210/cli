@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { homedir } from 'node:os';
+
 import { 
 	makeList, 
 	log, 
@@ -75,6 +76,7 @@ async function getTemplateList() {
 function makeTargetPath() {
 	return path.resolve(`${homedir()}/${TEMP_HOME}`, 'addTemplate');
 }
+
 export default async function createTemplate(name, opts) {
 	const TEMPLATE_LIST = await getTemplateList();
 	if (!TEMPLATE_LIST) {
