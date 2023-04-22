@@ -33,6 +33,7 @@
   "type": "module",
   "dependencies": {
     "@fengshaojian/init": "0.0.0",
+    "@fengshaojian/install": "0.0.0",
     "@fengshaojian/utils": "0.0.0",
     "commander": "^10.0.0",
     "dirname-filename-esm": "^1.1.1",
