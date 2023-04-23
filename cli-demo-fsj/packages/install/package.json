@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/fsj930210/cli/issues"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "ora": "^6.3.0"
+  }
 }

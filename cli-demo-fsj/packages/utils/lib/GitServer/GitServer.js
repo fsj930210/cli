@@ -2,6 +2,7 @@ import path from 'node:path';
 import { homedir} from 'node:os'
 import { pathExistsSync } from 'path-exists';
 import fse from 'fs-extra';
+import {execa} from 'execa'
 import { makePassword, log } from '../index.js'
 
 const TEMP_HOME = '.cli-demo-fsj';
@@ -50,12 +51,23 @@ class GitServer {
   }
   savePlatform (platform) {
     const platformPath = getGitPlatformPath();
+    this.platform = platform;
     log.verbose('platform path', platformPath, platform);
     fse.ensureFileSync(platformPath);
     fse.writeFileSync(platformPath, platform);
   }
   getPlatform() {
     return this.platform;
+  }
+  getRepoUrl(fullName) {
+    return `https://${this.platform}.com/${fullName}.git`;
+  }
+  cloneGitRepo(fullName, tag) {
+    if (tag){
+      return execa('git', ['clone', this.getRepoUrl(fullName), '-b', tag])
+    } else {
+      return execa('git', ['clone', this.getRepoUrl(fullName)]);
+    }
   }
 }
 

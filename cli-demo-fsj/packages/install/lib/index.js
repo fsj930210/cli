@@ -1,12 +1,14 @@
 'use strict';
 import Command from '@fengshaojian/command';
+import ora from 'ora'
 import { 
   Github,
   Gitee,
   getGitPlatform, 
   log, 
   makeList, 
-  makeInput
+  makeInput,
+  printErrorLog
 } from '@fengshaojian/utils';
 
 const PRE_PAGE = '${pre_page}';
@@ -30,6 +32,8 @@ class InstallCommand extends Command {
 		log.verbose('install....');
     await this.genGitAPI();
     await this.searchGitAPI();
+    await this.doSearch();
+    await this.download();
 	}
   async genGitAPI() {
     let platform;
@@ -98,57 +102,67 @@ class InstallCommand extends Command {
       message: '请输入开发语言'
     });
     log.verbose('查询的关键词和开发语言', this.q, this.language)
-    await this.doSearch();
+    
   }
   // ========== Project ===========
   async doSearch() {
     this.list = [];
     this.totalCount = 0;
     let searchRes;
-    if (this.platform === 'github') {
-      //2. 组合搜索参数
-      let params = {
-        q: this.q + `+language:${this.language}`,
-        sort: 'stars',
-        order: 'desc',
-        per_page: this.per_page,
-        page: this.page
-      }
-      if (this.mode === SEARCH_REPO) {
+    const spinner = ora(`正在搜索${this.q} ${this.language}`).start();
+    try {
+      if (this.platform === 'github') {
+        //2. 组合搜索参数
+        let params = {
+          q: this.q + `+language:${this.language}`,
+          sort: 'stars',
+          order: 'desc',
+          per_page: this.per_page,
+          page: this.page
+        }
+        if (this.mode === SEARCH_REPO) {
+          searchRes = await this.gitAPI.searchRepositories(params);
+          spinner.stop();
+          this.list = searchRes.items.map(item =>({
+            name: `${item.full_name}(${item.description})`,
+            value: `${item.full_name}`
+          }));
+        } else {
+          searchRes = await this.gitAPI.searchCode(params);
+          spinner.stop();
+          this.list = searchRes.items.map(item =>({
+            name: `${item.repository.full_name}${item.repository.description ? `(${item.repository.description})` : ''}`,
+            value: `${item.repository.full_name}`
+          }));
+          
+        }
+        this.totalCount = searchRes.total_count;
+        await this.doChooseProject();
+      } else {
+         //2. 组合搜索参数
+         let params = {
+          q: this.q,
+          sort: 'stars_count',
+          order: 'desc',
+          per_page: this.per_page,
+          page: this.page
+        }
+        if (this.language) {
+          params.language = this.language; // 注意这里需要严格符合gitee规范，最好写成一个list，让他选
+        }
         searchRes = await this.gitAPI.searchRepositories(params);
-        this.list = searchRes.items.map(item =>({
-          name: `${item.full_name}(${item.description})`,
+        spinner.stop();
+        this.list = searchRes.map(item =>({
+          name: `${item.full_name}${item.description ? `(${item.description})` : ''}`,
           value: `${item.full_name}`
         }));
-      } else {
-        searchRes = await this.gitAPI.searchCode(params);
-        this.list = searchRes.items.map(item =>({
-          name: `${item.repository.full_name}${item.repository.description ? `(${item.repository.description})` : ''}`,
-          value: `${item.repository.full_name}`
-        }));
-        
+        this.totalCount = 99999;
+        await this.doChooseProject();
       }
-      this.totalCount = searchRes.total_count;
-      await this.doChooseProject();
-    } else {
-       //2. 组合搜索参数
-       let params = {
-        q: this.q,
-        sort: 'stars_count',
-        order: 'desc',
-        per_page: this.per_page,
-        page: this.page
-      }
-      if (this.language) {
-        params.language = this.language; // 注意这里需要严格符合gitee规范，最好写成一个list，让他选
-      }
-      searchRes = await this.gitAPI.searchRepositories(params);
-      this.list = searchRes.map(item =>({
-        name: `${item.full_name}${item.description ? `(${item.description})` : ''}`,
-        value: `${item.full_name}`
-      }));
-      this.totalCount = 99999;
-      await this.doChooseProject();
+    } catch (error) {
+      spinner.stop();
+      printErrorLog(error);
+      
     }
   }
   async nextPage() {
@@ -179,12 +193,13 @@ class InstallCommand extends Command {
         choices: this.list
       });
       log.verbose('选择的是', keyword);
-      this.keyword = keyword;
-      if (this.keyword === NEXT_PAGE) {
+     
+      if (keyword === NEXT_PAGE) {
         this.nextPage()
-      } else if (this.keyword === PRE_PAGE) {
+      } else if (keyword === PRE_PAGE) {
         this.prePage()
       } else {
+        this.keyword = keyword;
         // 选择下载的Tag
         this.doSearchTags()
       }
@@ -192,23 +207,31 @@ class InstallCommand extends Command {
   }
   // ======= Tags ===========
   async doSearchTags() {
-    this.tags_list = [];
-    let params = {
-      per_page: this.tags_perPage,
-      page: this.tags_page
+    const spinner = ora(`正在查询${this.keyword}的Tags`).start();
+    try {
+      this.tags_list = [];
+      let params = {
+        per_page: this.tags_perPage,
+        page: this.tags_page
+      }
+      const searchRes = await this.gitAPI.searchTags(this.keyword, params);
+      spinner.stop();
+      this.tags_list = searchRes.map(item => ({
+        name: item.name,
+        value: item.name
+      }));
+      console.log('this.tags_list', this.tags_list)
+      if (this.tags_list.length <= 0 && this.tags_page <= 1) {
+        this.tag = null;
+      } else {
+        await this.doChooseTag();
+      }
+    } catch (error) {
+      spinner.stop();
+      printErrorLog(error);
+      
     }
-    const searchRes = await this.gitAPI.searchTags(this.keyword, params);
-    console.log(searchRes)
-    this.tags_list = searchRes.map(item => ({
-      name: item.name,
-      value: item.name
-    }));
-    console.log(this.tags_list)
-    if (this.tags_list.length < 0 && this.tags_page <= 1) {
-      log.info('没有tag将下载主分支代码');
-    } else {
-      await this.doChooseTag();
-    }
+
   }
   async nextTagsPage() {
     this.tags_page++;
@@ -242,14 +265,21 @@ class InstallCommand extends Command {
       } else if (keyword === PRE_PAGE) {
         this.preTagsPage()
       } else {
-        // 下载项目
-        this.download()
+        this.tag = keyword;
       }
     
   }
   // =========== 下载模板 ==========
-  download() {
-
+  async download() {
+    const spinner = ora(`正在下载${this.keyword}`).start();
+    try {
+      await this.gitAPI.cloneGitRepo(this.keyword, this.tag);
+      spinner.stop()
+      log.success('下载成功')
+    } catch (error) {
+      spinner.stop();
+      printErrorLog(error);
+    }
   }
 	preAction() {
 		// log.info('pre');
