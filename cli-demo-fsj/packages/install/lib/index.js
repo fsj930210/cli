@@ -34,6 +34,8 @@ class InstallCommand extends Command {
     await this.searchGitAPI();
     await this.doSearch();
     await this.download();
+    await this.installDependencies();
+    await this.bootstarpProject();
 	}
   async genGitAPI() {
     let platform;
@@ -115,7 +117,7 @@ class InstallCommand extends Command {
         //2. 组合搜索参数
         let params = {
           q: this.q + `+language:${this.language}`,
-          sort: 'stars',
+          // sort: 'stars',
           order: 'desc',
           per_page: this.per_page,
           page: this.page
@@ -142,7 +144,7 @@ class InstallCommand extends Command {
          //2. 组合搜索参数
          let params = {
           q: this.q,
-          sort: 'stars_count',
+          // sort: 'stars_count',
           order: 'desc',
           per_page: this.per_page,
           page: this.page
@@ -195,13 +197,13 @@ class InstallCommand extends Command {
       log.verbose('选择的是', keyword);
      
       if (keyword === NEXT_PAGE) {
-        this.nextPage()
+        await this.nextPage()
       } else if (keyword === PRE_PAGE) {
-        this.prePage()
+        await this.prePage()
       } else {
         this.keyword = keyword;
         // 选择下载的Tag
-        this.doSearchTags()
+       await this.doSearchTags()
       }
     }
   }
@@ -222,7 +224,7 @@ class InstallCommand extends Command {
       }));
       console.log('this.tags_list', this.tags_list)
       if (this.tags_list.length <= 0 && this.tags_page <= 1) {
-        this.tag = null;
+        this.tag = '';
       } else {
         await this.doChooseTag();
       }
@@ -261,9 +263,9 @@ class InstallCommand extends Command {
       });
       log.verbose('选择的Tag是', keyword);
       if (keyword === NEXT_PAGE) {
-        this.nextTagsPage()
+        await this.nextTagsPage()
       } else if (keyword === PRE_PAGE) {
-        this.preTagsPage()
+        await this.preTagsPage()
       } else {
         this.tag = keyword;
       }
@@ -280,6 +282,29 @@ class InstallCommand extends Command {
       spinner.stop();
       printErrorLog(error);
     }
+  }
+
+  // ========== 安装依赖 ===========
+  async installDependencies () {
+    const spinner = ora(`正在安装依赖：${this.keyword}(${this.tag})`).start()
+    try {
+     const res =  await this.gitAPI.installDependencies(process.cwd(), this.keyword);
+      spinner.stop();
+      if (!res) {
+        log.success(`依赖安装失败：${this.keyword}(${this.tag})`)
+      } else {
+        log.success(`依赖安装成功：${this.keyword}(${this.tag})`)
+      }
+      
+    } catch (error) {
+      spinner.stop();
+      console.log(error);
+    }
+  }
+
+  // ========= 启动项目 ===========
+  async bootstarpProject() {
+    return await this.gitAPI.bootstarpProject(process.cwd(), this.keyword);
   }
 	preAction() {
 		// log.info('pre');
